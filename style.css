@@ -1,0 +1,123 @@
+/* Página de inicio */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-image: url('img/fondo.jpeg');
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-size: cover;
+}
+
+header {
+    background-color: #963b4e;
+    padding: 10px;
+    text-align: left;
+}
+
+footer {
+    display: flex;
+    text-align: center;
+    padding: 10px;
+    background-color: rgb(150, 59, 78);
+    color: rgb(255, 255, 255);
+}
+
+header a {
+    color: white;
+    text-decoration: none;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+p {
+    color: rgb(255, 255, 255);
+}
+
+h1 {
+    color: white;
+}
+
+h2 {
+    margin-top: 5px;
+    color: white;
+}
+
+main {
+    padding: 20px;
+}
+
+.title {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    text-align: center;
+}
+
+.about-us {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 30px;
+    flex-wrap: wrap;
+}
+
+.about-us img {
+    width: 30%;
+    height: 30%;
+    object-fit: cover;
+    margin-left: 20px;
+    margin-bottom: 0px;
+}
+
+.about-us-text {
+    max-width: 600px;
+    padding: 20px;
+    background-color: rgba(150, 59, 78, 0.75);
+    border: 2px solid rgba(150, 59, 78, 1);
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+@media (max-width: 1200px) {
+    .about-us {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    .about-us img {
+        width: 80%;
+        margin-right: 0;
+        margin-top: 20px;
+    }
+
+    .about-us-text {
+        width: 90%;
+    }
+}
+
+.carrusel {
+    margin-top: 75px;
+    width: 70%;
+}
+
+.carousel-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 30px;
+}
+
+/* Página de usuario*/
+.container {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+}
+
+.column {
+    flex: 1;
+    padding: 10px;
+    min-width: 250px;
+}
