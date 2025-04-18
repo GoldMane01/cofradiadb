@@ -42,21 +42,26 @@ try {
     </a>
     <a href="login.php">Inicio de Sesión</a>
 </header>
-<h2 style="text-align: center;">Login</h2>
 
-<?php if ($login_error): ?>
-    <p class="error"><?= htmlspecialchars($login_error) ?></p>
-<?php endif; ?>
+<div class="form-container">
+    <div class="form-div">
+        <h2 style="text-align: center;">Iniciar Sesión</h2>
+        
+        <?php if ($login_error): ?>
+            <p class="error"><?= htmlspecialchars($login_error) ?></p>
+        <?php endif; ?>
+        <form method="post" action="">
+            <label for="email">Email:</label><br>
+            <input type="email" id="email" name="email" required><br>
+        
+            <label for="password">Password:</label><br>
+            <input type="password" id="password" name="password" required><br>
+        
+            <input type="submit" value="Login">
+        </form>
+    </div>
+</div>
 
-<form method="post" action="">
-    <label for="email">Email:</label><br>
-    <input type="email" id="email" name="email" required><br>
-
-    <label for="password">Password:</label><br>
-    <input type="password" id="password" name="password" required><br>
-
-    <input type="submit" value="Inicio Sesión">
-</form>
 
 </body>
 </html>

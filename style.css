@@ -3,10 +3,7 @@ body {
     font-family: Arial, sans-serif;
     margin: 0;
     padding: 0;
-    background-image: url('img/fondo.jpeg');
-    background-repeat: no-repeat;
-    background-attachment: fixed;
-    background-size: cover;
+    background-color: black;
 }
 
 header {
@@ -43,8 +40,48 @@ h2 {
     color: white;
 }
 
-main {
+.image-text-left {
+    width: 100%;
+    height: 600px;
+    background-image: url('img/virgensm.webp');
+    background-size: cover;
+    background-position: center;
+    display: flex;
+    justify-content: flex-end;
     padding: 20px;
+    align-items: center;
+    color: white;
+    font-size: 50px;
+}
+  
+.text-content-left {
+    max-width: 35%; 
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.image-text-right {
+    width: 100%;
+    height: 600px;
+    background-image: url('img/cristosm.webp');
+    background-size: cover;
+    background-position: center;
+    display: flex;
+    justify-content: flex-start;
+    padding: 20px;
+    align-items: center;
+    color: white;
+    font-size: 50px;
+}
+  
+.text-content-right {
+    max-width: 35%; 
+    padding: 10px;
+    border-radius: 5px;
+}
+
+main {
+    padding: 0px;
 }
 
 .title-div {
@@ -91,6 +128,28 @@ main {
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
+.carrusel {
+    width: 70%;
+}
+
+.carousel-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.container {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+}
+
+.column {
+    flex: 1;
+    padding: 10px;
+    min-width: 250px;
+}
+
 @media (max-width: 1200px) {
     .about-us {
         flex-direction: column;
@@ -107,29 +166,69 @@ main {
     .about-us-text {
         width: 90%;
     }
-}
 
-.carrusel {
-    margin-top: 75px;
-    width: 70%;
-}
+    .text-content-left {
+        max-width: 80%; 
+        padding: 10px;
+        border-radius: 5px;
+        background-color: rgba(0, 0, 0, 0.5);
+    }
 
-.carousel-wrapper {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin-top: 30px;
-}
+    .image-text-left {
+        width: 100%;
+        height: 600px;
+        background-image: url('img/virgensm.webp');
+        background-size: cover;
+        background-position: center;
+        display: flex;
+        padding: 20px;
+        align-items: center;
+        color: white;
+        font-size: 24px;
+    }
 
-/* Página de usuario*/
-.container {
-    display: flex;
-    justify-content: space-between;
-    flex-wrap: wrap;
-}
+    .text-content-right {
+        max-width: 80%; 
+        padding: 10px;
+        border-radius: 5px;
+        background-color: rgba(0, 0, 0, 0.5);
+    }
 
-.column {
-    flex: 1;
-    padding: 10px;
-    min-width: 250px;
+    .image-text-right {
+        width: 100%;
+        height: 600px;
+        background-image: url('img/cristosm.webp');
+        background-size: cover;
+        background-position: center;
+        display: flex;
+        padding: 20px;
+        align-items: center;
+        color: white;
+        font-size: 24px;
+    }
+
+    footer {
+        display: flex;
+        text-align: center;
+        padding: 10px;
+        background-color: rgb(150, 59, 78);
+        color: rgb(255, 255, 255);
+        flex-direction: column;
+        align-items: center; 
+    }
+
+    .carrusel {
+        width: 100%;
+    }
+
+    .carousel-wrapper {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+    }
+
+    .carousel-indicators {
+        visibility: hidden;
+    }
 }
