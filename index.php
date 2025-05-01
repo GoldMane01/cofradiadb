@@ -7,13 +7,13 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
     <title>Homepage</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="styles/style.css">
 </head>
 <body>
 
 <?php
 require 'config.php';
-
+session_start();
 //error_reporting(E_ALL);
 //ini_set('display_errors', 1);
 $login_error = "";
@@ -23,14 +23,15 @@ try {
         $email = $_POST['email'] ?? '';
         $password = $_POST['password'] ?? '';
 
-        $stmt = $pdo->prepare("SELECT password FROM user WHERE email = ?");
+        $stmt = $pdo->prepare("SELECT id, password FROM user WHERE email = ?");
         $stmt->execute([$email]);
         $user = $stmt->fetch();
 
         if ($user && password_verify($password, $user['password'])) {
+            $_SESSION['user_id'] = $user['id'];
             header('Location: home.php');
         } else {
-			$login_error = "Error: contraseña o correo equivocados";
+			      $login_error = "Error: contraseña o correo equivocados";
         }
     }
 

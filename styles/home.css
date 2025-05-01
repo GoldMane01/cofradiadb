@@ -1,0 +1,85 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: black;
+}
+
+header {
+    background-color: #963b4e;
+    padding: 5px;
+    text-align: left;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+
+.box {
+	border: 1px solid #ccc;
+	border-radius: 10px;
+	padding: 20px;
+	background: #963b4e;
+	box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+	width: 75%;
+	margin: 25px;
+	align-items: center;
+}
+  
+.three-columns {
+	display: flex;
+	gap: 20px;
+	flex-wrap: wrap;
+}
+  
+.column {
+	flex: 1;
+	min-width: 200px;
+}
+  
+.item {
+	margin-bottom: 15px;
+}
+  
+.label {
+	font-weight: bold;
+	color: #ffffff;
+	margin-bottom: 10px;
+	font-size: 100% !important;
+}
+  
+.value {
+	background: #252525;
+	color: #ffffff;
+	padding: 8px;
+	border-radius: 5px;
+	margin-top: 5px;
+}
+  
+.inscription {
+	font-weight: bold;
+	color: #ffffff;
+	margin-bottom: 20px;
+	font-size: 100% !important;
+}
+
+.login-btn {
+    background-color: black;
+    border: none;
+    color: white;
+    padding: 8px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
+    border-radius: 8px;
+}
+
+.login-form {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0;
+}

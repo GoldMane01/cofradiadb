@@ -46,7 +46,7 @@ h2 {
 .image-text-left {
     width: 100%;
     height: 600px;
-    background-image: url('img/virgensm.webp');
+    background-image: url('../img/virgensm.webp');
     background-size: cover;
     background-position: center;
     display: flex;
@@ -66,7 +66,7 @@ h2 {
 .image-text-right {
     width: 100%;
     height: 600px;
-    background-image: url('img/cristosm.webp');
+    background-image: url('../img/cristosm.webp');
     background-size: cover;
     background-position: center;
     display: flex;
