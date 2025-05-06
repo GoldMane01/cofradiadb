@@ -12,6 +12,7 @@ header {
     display: flex;
     align-items: center;
     gap: 10px;
+	justify-content: space-between;
 }
 
 
@@ -54,6 +55,7 @@ header {
 	padding: 8px;
 	border-radius: 5px;
 	margin-top: 5px;
+	height: 36px;
 }
   
 .inscription {
