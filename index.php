@@ -8,6 +8,7 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
     <title>Homepage</title>
     <link rel="stylesheet" href="styles/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body>
 
@@ -59,7 +60,7 @@ try {
 
 <main>
 
-  <div class="image-text-left">
+  <div class="image-text-left" style="font-family: 'Playfair Display', serif; font-size: 45px;">
     <div class="text-content-left">
       <p>Hermandad de Nuestro Padre Jesús Nazareno del Paso,</p>
       <p>Nuestra Señora de los Dolores</p>

@@ -63,29 +63,49 @@ try {
     exit;
 }
 
-/*$search = $_GET['search'] ?? '';
+$search_i = $_GET['search_i'] ?? '';
+$search_n = $_GET['search_n'] ?? '';
 
-$stmt = $pdo->prepare("SELECT id, name, surname, dni, inscription_n, birthdate, phone_number, email, address, postal_code, signed FROM user");
-$stmt->execute();
-$users = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-// Add inscriptions to each user
-foreach ($users as &$user) {
-    $stmt = $pdo->prepare("SELECT inscription_number, date_incorporated FROM inscriptions WHERE user_id = ?");
-    $stmt->execute([$user['id']]);
-    $user['inscription'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
+if (!empty($search_i)) {
+    $stmt = $pdo->prepare("SELECT id, name, surname, dni, inscription_n, birthdate, phone_number, email, address, postal_code, signed FROM user");
+    $stmt->execute();
+    $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    
+    foreach ($users as &$user) {
+        $stmt = $pdo->prepare("SELECT inscription_number, date_incorporated FROM inscriptions WHERE user_id = ?");
+        $stmt->execute([$user['id']]);
+        $user['inscription'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+    unset($user);
+    
+    if (!empty($search_i)) {
+        $users = array_filter($users, function ($user) use ($search_i) {
+            return !empty(array_filter($user['inscription'], function ($ins) use ($search_i) {
+                    return strpos((string)$ins['inscription_number'], $search_i) !== false;
+                }));
+        });
+    }
 }
-unset($user);
 
-if (!empty($search)) {
-    $users = array_filter($users, function ($user) use ($search) {
-        return strpos((string)$user['id'], $search) !== false
-            || strpos((string)$user['inscription_n'], $search) !== false
-            || array_filter($user['inscription'], function ($ins) use ($search) {
-                return strpos((string)$ins['inscription_number'], $search) !== false;
-            });
-    });
-}*/
+if (!empty($search_n)) {
+    $stmt = $pdo->prepare("SELECT id, name, surname, dni, inscription_n, birthdate, phone_number, email, address, postal_code, signed FROM user");
+    $stmt->execute();
+    $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    
+    foreach ($users as &$user) {
+        $stmt = $pdo->prepare("SELECT inscription_number, date_incorporated FROM inscriptions WHERE user_id = ?");
+        $stmt->execute([$user['id']]);
+        $user['inscription'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+    unset($user);
+    
+    if (!empty($search_n)) {
+        $users = array_filter($users, function ($user) use ($search_n) {
+            return strcasecmp($user['name'], $search_n) === 0
+                || strcasecmp($user['surname'], $search_n) === 0;
+        });
+    }
+}
 
 ?>
 <!DOCTYPE html>
@@ -101,23 +121,40 @@ if (!empty($search)) {
 </head>
 <body>
 <header>
+  <div style="display: flex; align-items: center; justify-content: space-between; padding: 10px 20px;">
   <a href="index.php">
     <img src="img/logo.png" alt="Logo" style="height: 50px;">
   </a>
-  <?php if ($pass_msg): ?>
-    <p class="error" style="color: white; margin: 0 10px;"><?= htmlspecialchars($pass_msg) ?></p>
+  
+  <a href="add_user.php" class="login-btn">Añadir Usuario</a>
+  </div>
+    
+    <?php if ($pass_msg): ?>
+      <p class="error" style="color: white; margin: 0 10px;"><?= htmlspecialchars($pass_msg) ?></p>
+    <?php endif; ?>
+  
+    <?php if ($user_id == 0): ?>
+    <form method="post" action="" class="login-form">
+      <input type="password" id="opassword" name="opassword" class="form-control rounded-pill" style="width: 200px;" placeholder="Contraseña actual" required>
+      <input type="password" id="npassword" name="npassword" class="form-control rounded-pill" style="width: 200px;" placeholder="Contraseña nueva" required>
+      <input type="submit" value="Cambiar Contraseña" class="login-btn">
+    </form>
+  
+    <form method="get" action="" class="login-form">
+          <input type="text" name="search_i" class="form-control rounded-pill" placeholder="Buscar número..." style="padding: 6px;">
+          <button type="submit" class="login-btn">Buscar</button>
+          <input type="text" name="search_n" class="form-control rounded-pill" placeholder="Buscar nombre..." style="padding: 6px;">
+          <button type="submit" class="login-btn">Buscar</button>
+    </form>
+  <?php endif; ?>
+  <?php if ($user_id != 0): ?>
+    <form method="post" action="" class="login-form">
+      <input type="password" id="opassword" name="opassword" class="form-control rounded-pill" style="width: 200px;" placeholder="Contraseña actual" required>
+      <input type="password" id="npassword" name="npassword" class="form-control rounded-pill" style="width: 200px;" placeholder="Contraseña nueva" required>
+      <input type="submit" value="Cambiar Contraseña" class="login-btn">
+    </form>
   <?php endif; ?>
 
-  <form method="post" action="" class="login-form">
-    <input type="password" id="opassword" name="opassword" class="form-control rounded-pill" style="width: 200px;" placeholder="Contraseña actual" required>
-    <input type="password" id="npassword" name="npassword" class="form-control rounded-pill" style="width: 200px;" placeholder="Contraseña nueva" required>
-    <input type="submit" value="Cambiar Contraseña" class="login-btn">
-  </form>
-
-  <form method="get" action="" class="login-form">
-        <input type="text" name="search" class="form-control rounded-pill" placeholder="Buscar número..." style="padding: 6px; margin-right: 8px;">
-        <button type="submit" class="login-btn">Buscar</button>
-    </form>
 </header>
 
 <?php 
