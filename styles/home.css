@@ -31,6 +31,11 @@ header {
 	gap: 20px;
 	flex-wrap: wrap;
 }
+
+.two-columns {
+	display: flex;
+	flex-wrap: wrap;
+}
   
 .column {
 	flex: 1;
@@ -54,7 +59,32 @@ header {
 	padding: 8px;
 	border-radius: 5px;
 	margin-top: 5px;
-	height: 36px;
+	min-height: 36px;
+}
+
+.value-two {
+	background: #252525;
+	color: #ffffff;
+	padding: 8px;
+	border-radius: 5px;
+	margin-top: 5px;
+	min-height: 36px;
+	flex: 1;
+	border-right: 2px solid white;
+	border-bottom-right-radius: unset;
+	border-top-right-radius: unset;
+}
+
+.value-two-right {
+	background: #252525;
+	color: #ffffff;
+	padding: 8px;
+	border-radius: 5px;
+	margin-top: 5px;
+	min-height: 36px;
+	flex: 5;
+	border-bottom-left-radius: unset;
+	border-top-left-radius: unset;
 }
   
 .inscription {

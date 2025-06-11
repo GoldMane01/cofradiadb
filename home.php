@@ -2,8 +2,8 @@
 session_start();
 require 'config.php';
 
-//error_reporting(E_ALL);
-//ini_set('display_errors', 1);
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
 
 $user_id = $_SESSION['user_id'];
 
@@ -16,6 +16,9 @@ if ($user_id == 0) {
         $stmt = $pdo->prepare("SELECT inscription_number, date_incorporated FROM inscriptions WHERE user_id = ?");
         $stmt->execute([$user['id']]);
         $user['inscription'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $stmt = $pdo->prepare("SELECT year, observation, role FROM san_anton WHERE user_id = ?");
+        $stmt->execute([$user['id']]);
+        $user['anton'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
     unset($user);
 
@@ -101,8 +104,8 @@ if (!empty($search_n)) {
     
     if (!empty($search_n)) {
         $users = array_filter($users, function ($user) use ($search_n) {
-            return strcasecmp($user['name'], $search_n) === 0
-                || strcasecmp($user['surname'], $search_n) === 0;
+            $full_name = $user['name'] . ' ' . $user['surname'];
+            return stripos($full_name, $search_n) !== false;
         });
     }
 }
@@ -157,7 +160,8 @@ if (!empty($search_n)) {
 
 </header>
 
-<?php 
+<?php
+$count = 0;
 if ($user_id == 0) {
     foreach ($users as $u):
         if ($u['id'] == 0) {
@@ -171,64 +175,93 @@ if ($user_id == 0) {
             <?php foreach ($u['inscription'] as $inscription): ?>
                  <?= $inscription['inscription_number'] ?> (<?= $inscription['date_incorporated'] ?>);
             <?php endforeach; ?></div>
-    <div class="three-columns">
-        <div class="column">
-        <div class="item">
-            <div class="label">Nombre</div>
-            <div class="value"><?= $u['name'] ?></div>
-        </div>
-        <div class="item">
-            <div class="label">Apellidos</div>
-            <div class="value"><?= $u['surname'] ?></div>
-        </div>
-        <div class="item">
-            <div class="label">Correo</div>
-            <div class="value"><?= $u['email'] ?></div>
-        </div>
-        <div class="item">
-            <div class="label">Dirección</div>
-            <div class="value"><?= $u['address'] ?></div>
-        </div>
-        <div class="item">
-            <div class="label">Código Postal</div>
-            <div class="value"><?= $u['postal_code'] ?></div>
-        </div>
-        <div class="item">
-            <div class="label">Fecha de Nacimiento</div>
-            <div class="value"><?= $u['birthdate'] ?></div>
-        </div>
-        <div class="item">
-            <div class="label">Teléfono</div>
-            <div class="value"><?= $u['phone_number'] ?></div>
-        </div>
-        <div class="item">
-            <div class="label">DNI</div>
-            <div class="value"><?= $u['dni'] ?></div>
-        </div>
-        </div>
+        <div class="three-columns">
+            <div class="column">
+                <div class="item">
+                    <div class="label">Nombre</div>
+                    <div class="value"><?= $u['name'] ?></div>
+                </div>
+                <div class="item">
+                    <div class="label">Apellidos</div>
+                    <div class="value"><?= $u['surname'] ?></div>
+                </div>
+                <div class="item">
+                    <div class="label">Correo</div>
+                    <div class="value"><?= $u['email'] ?></div>
+                </div>
+                <div class="item">
+                    <div class="label">Dirección</div>
+                    <div class="value"><?= $u['address'] ?></div>
+                </div>
+                <div class="item">
+                    <div class="label">Código Postal</div>
+                    <div class="value"><?= $u['postal_code'] ?></div>
+                </div>
+                <div class="item">
+                    <div class="label">Fecha de Nacimiento</div>
+                    <div class="value"><?= $u['birthdate'] ?></div>
+                </div>
+                <div class="item">
+                    <div class="label">Teléfono</div>
+                    <div class="value"><?= $u['phone_number'] ?></div>
+                </div>
+                <div class="item">
+                    <div class="label">DNI</div>
+                    <div class="value"><?= $u['dni'] ?></div>
+                </div>
+            </div>
 
-        <div class="column">
-        <div class="item">
-            <div class="label">Correo</div>
-            <div class="value"><?= $u['email'] ?></div>
-        </div>
-        <div class="item">
-            <div class="label">Correo</div>
-            <div class="value">carlos@example.com</div>
-        </div>
-        </div>
+            <div class="column">
+                <div class="item">
+                    <div class="label">San Antón (Roles)</div>
+                    <?php 
+                    $count = 0;
+                    foreach ($u['anton'] as $anton): 
+                        $count++;?>
+                        <div class="two-columns">
+                            <div class="value-two">
+                                    <?= $anton['year'] ?>
+                                </div>
+                                <div class="value-two-right">
+                                    <?= $anton['role'] ?>
+                                </div>
+                            </div>
+                    <?php endforeach; if ($count == 0) { ?>
+                        <div class="value">Ningún año registrado</div>
+                    <?php } ?>
+                </div>
+                <div class="item">
+                    <div class="label">San Antón (Observaciones)</div>
+                    <?php 
+                        $count = 0;
+                        foreach ($u['anton'] as $anton): 
+                        if (!empty($anton['observation'])) {
+                            $count++; ?>
+                        <div class="two-columns">
+                            <div class="value-two">
+                                    <?= $anton['year'] ?>
+                                </div>
+                                <div class="value-two-right">
+                                    <?= $anton['observation'] ?>
+                                </div>
+                            </div>
+                    <?php } endforeach; if ($count == 0) { ?>
+                            <div class="value">Sin observaciones</div>
+                    <?php   } ?>
+                </div>
+            </div>
 
-        <div class="column">
-        <div class="item">
-            <div class="label">Rol</div>
-            <div class="value">Administrador</div>
+            <div class="column">
+                <div class="item">
+                    <div class="label">Rol</div>
+                    <div class="value">Administrador</div>
+                </div>
+                <div class="item">
+                    <div class="label">Rol</div>
+                    <div class="value">Usuario</div>
+                </div>
+            </div>
         </div>
-        <div class="item">
-            <div class="label">Rol</div>
-            <div class="value">Usuario</div>
-        </div>
-        </div>
-    </div>
     </div>
 </div>
 <?php endforeach; } else { ?>
