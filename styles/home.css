@@ -34,7 +34,8 @@ header {
 
 .two-columns {
 	display: flex;
-	flex-wrap: wrap;
+	flex-wrap: nowrap;
+	max-width: 100%;
 }
   
 .column {
@@ -43,7 +44,7 @@ header {
 }
   
 .item {
-	margin-bottom: 15px;
+	margin-bottom: 10px;
 }
   
 .label {
@@ -69,7 +70,7 @@ header {
 	border-radius: 5px;
 	margin-top: 5px;
 	min-height: 36px;
-	flex: 1;
+	flex: 0;
 	border-right: 2px solid white;
 	border-bottom-right-radius: unset;
 	border-top-right-radius: unset;
@@ -82,9 +83,58 @@ header {
 	border-radius: 5px;
 	margin-top: 5px;
 	min-height: 36px;
-	flex: 5;
+	min-width: 0;
+	flex: 1 1 auto;
 	border-bottom-left-radius: unset;
 	border-top-left-radius: unset;
+	word-wrap: break-word;
+    white-space: normal;
+}
+
+.value-two-viernes {
+	background: #252525;
+	color: #ffffff;
+	padding: 8px;
+	min-height: 36px;
+	flex: 1;
+	border-right: 2px solid white;
+}
+
+.value-two-nobordertop {
+	background: #252525;
+	color: #ffffff;
+	padding: 8px;
+	border-radius: 5px;
+	min-height: 36px;
+	flex: 1;
+	border-right: 2px solid white;
+	border-bottom-right-radius: unset;
+	border-top-right-radius: unset;
+	border-top-left-radius: unset;
+}
+
+.value-two-right-nobordertop {
+	background: #252525;
+	color: #ffffff;
+	padding: 8px;
+	border-radius: 5px;
+	min-height: 36px;
+	flex: 1;
+	border-bottom-left-radius: unset;
+	border-top-left-radius: unset;
+	border-top-right-radius: unset;
+}
+
+.year {
+	background: #252525;
+	color: #ffffff;
+	padding: 8px;
+	border-radius: 5px;
+	margin-top: 5px;
+	min-height: 36px;
+	border-bottom: 2px solid white;
+	border-bottom-right-radius: unset;
+	border-bottom-left-radius: unset;
 }
   
 .inscription {
@@ -96,7 +146,7 @@ header {
 
 .login-btn {
     background-color: black;
-    border: none;
+    border: 2px solid white;
     color: white;
     padding: 8px;
     text-align: center;
@@ -106,6 +156,26 @@ header {
     margin: 4px 2px;
     cursor: pointer;
     border-radius: 8px;
+}
+
+.sm-btn {
+    background-color: black;
+    border: 2px solid white;
+    color: white;
+    padding: 4px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 8px;
+	margin-bottom: 10px;
+	margin-top: -5px;
+}
+
+.btn-container {
+    display: flex;
+    justify-content: center; 
 }
 
 .login-form {

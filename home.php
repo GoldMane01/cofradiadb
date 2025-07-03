@@ -19,6 +19,9 @@ if ($user_id == 0) {
         $stmt = $pdo->prepare("SELECT year, observation, role FROM san_anton WHERE user_id = ?");
         $stmt->execute([$user['id']]);
         $user['anton'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $stmt = $pdo->prepare("SELECT year, section, tunic, cape, role, esclavina FROM viernes_dolores WHERE user_id = ?");
+        $stmt->execute([$user['id']]);
+        $user['viernes'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
     unset($user);
 
@@ -78,6 +81,15 @@ if (!empty($search_i)) {
         $stmt = $pdo->prepare("SELECT inscription_number, date_incorporated FROM inscriptions WHERE user_id = ?");
         $stmt->execute([$user['id']]);
         $user['inscription'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $stmt = $pdo->prepare("SELECT inscription_number, date_incorporated FROM inscriptions WHERE user_id = ?");
+        $stmt->execute([$user['id']]);
+        $user['inscription'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $stmt = $pdo->prepare("SELECT year, observation, role FROM san_anton WHERE user_id = ?");
+        $stmt->execute([$user['id']]);
+        $user['anton'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $stmt = $pdo->prepare("SELECT year, section, tunic, cape, role, esclavina FROM viernes_dolores WHERE user_id = ?");
+        $stmt->execute([$user['id']]);
+        $user['viernes'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
     unset($user);
     
@@ -99,6 +111,15 @@ if (!empty($search_n)) {
         $stmt = $pdo->prepare("SELECT inscription_number, date_incorporated FROM inscriptions WHERE user_id = ?");
         $stmt->execute([$user['id']]);
         $user['inscription'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $stmt = $pdo->prepare("SELECT inscription_number, date_incorporated FROM inscriptions WHERE user_id = ?");
+        $stmt->execute([$user['id']]);
+        $user['inscription'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $stmt = $pdo->prepare("SELECT year, observation, role FROM san_anton WHERE user_id = ?");
+        $stmt->execute([$user['id']]);
+        $user['anton'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $stmt = $pdo->prepare("SELECT year, section, tunic, cape, role, esclavina FROM viernes_dolores WHERE user_id = ?");
+        $stmt->execute([$user['id']]);
+        $user['viernes'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
     unset($user);
     
@@ -230,6 +251,10 @@ if ($user_id == 0) {
                         <div class="value">Ningún año registrado</div>
                     <?php } ?>
                 </div>
+                <div class="btn-container">
+                    <button class="sm-btn sananton-role" data-user-id="<?= $u['id'] ?>">Añadir año</button>
+                    <button class="sm-btn sananton-delete" data-user-id="<?= $u['id'] ?>">Eliminar año</button>
+                </div>
                 <div class="item">
                     <div class="label">San Antón (Observaciones)</div>
                     <?php 
@@ -249,18 +274,49 @@ if ($user_id == 0) {
                             <div class="value">Sin observaciones</div>
                     <?php   } ?>
                 </div>
+                <div class="btn-container">
+                    <button class="sm-btn sananton-observe" data-user-id="<?= $u['id'] ?>">Añadir observación</button>
+                    <button class="sm-btn sananton-delete-observe" data-user-id="<?= $u['id'] ?>">Eliminar observación</button>
+                </div>
             </div>
 
             <div class="column">
                 <div class="item">
-                    <div class="label">Rol</div>
-                    <div class="value">Administrador</div>
+                    <div class="label">Viernes Dolores (Roles)</div>
+                    <?php 
+                    $count = 0;
+                    foreach ($u['viernes'] as $viernes): 
+                        $count++;?>
+                            <div class="year">
+                                <?= $viernes['year'] ?>
+                            </div>
+                            <div class="two-columns">
+                                <div class="value-two-nobordertop" style="flex: 1">
+                                    <?= $viernes['role'] ?>
+                                </div>
+                                <div class="value-two-viernes" style="flex: 1">
+                                    <?= $viernes['section'] ?>
+                                </div>
+                                <div class="value-two-viernes" style="flex: 1">
+                                    Túnica: <?= $viernes['tunic'] ?>
+                                </div>
+                                <div class="value-two-viernes" style="flex: 1">
+                                    Capa: <?= $viernes['cape'] ?>
+                                </div>
+                                <div class="value-two-right-nobordertop" style="flex: 1">
+                                    <?= $viernes['esclavina'] ?>
+                                </div>
+                            </div>
+                    <?php endforeach; if ($count == 0) { ?>
+                        <div class="value">Ningún año registrado</div>
+                    <?php } ?>
                 </div>
-                <div class="item">
-                    <div class="label">Rol</div>
-                    <div class="value">Usuario</div>
+                <div class="btn-container">
+                    <button class="sm-btn viernes-year" data-user-id="<?= $u['id'] ?>">Añadir año</button>
+                    <button class="sm-btn viernes-delete" data-user-id="<?= $u['id'] ?>">Eliminar año</button>
                 </div>
             </div>
+
         </div>
     </div>
 </div>
@@ -333,6 +389,178 @@ if ($user_id == 0) {
     </div>
 </div>
 <?php } ?>
+
+
+<script>
+$(document).ready(function() {
+  // Add San Antón Year + Role
+  $('.sananton-role').click(function() {
+    const userId = $(this).data('user-id');
+    const year = prompt("Introduce el año para San Antón:");
+    if (!year) return alert('El año es obligatorio.');
+
+    const role = prompt("Introduce el rol para ese año:");
+    if (!role) return alert('El rol es obligatorio.');
+
+    $.post('update_data.php', {
+      action: 'add_sananton_role',
+      user_id: userId,
+      year: year,
+      role: role
+    }, function(response) {
+      alert(response.message);
+      if(response.success) location.reload();
+    }, 'json');
+  });
+
+  $('.sananton-delete').click(function() {
+    const userId = $(this).data('user-id');
+    const year = prompt('Introduce el año que deseas eliminar:');
+
+    if (year === null || year.trim() === '') {
+      alert('Operación cancelada o año inválido.');
+      return;
+    }
+
+    $.ajax({
+      url: 'update_data.php',
+      method: 'POST',
+      data: {
+        user_id: userId,
+        action: 'delete_sananton_year',
+        year: year.trim()
+      },
+      dataType: 'json',
+      success: function(response) {
+        alert(response.message);
+        if (response.success) {
+          location.reload(); // Refresh to show updated data
+        }
+      },
+      error: function() {
+        alert('Error al comunicarse con el servidor.');
+      }
+    });
+  });
+
+  // Add San Antón Observation
+  $('.sananton-observe').click(function() {
+    const userId = $(this).data('user-id');
+    const year = prompt("Introduce el año para la observación:");
+    if (!year) return alert('Año es obligatorio.');
+
+    const observation = prompt("Introduce la observación:");
+    if (!observation) return alert('Observación es obligatoria.');
+
+    $.post('update_data.php', {
+      action: 'add_sananton_observation',
+      user_id: userId,
+      year: year,
+      observation: observation
+    }, function(response) {
+      alert(response.message);
+      if(response.success) location.reload();
+    }, 'json');
+  });
+
+    $('.sananton-delete-observe').click(function() {
+    const userId = $(this).data('user-id');
+    const year = prompt('Introduce el año que deseas eliminar:');
+
+    if (year === null || year.trim() === '') {
+      alert('Operación cancelada o año inválido.');
+      return;
+    }
+
+    $.ajax({
+      url: 'update_data.php',
+      method: 'POST',
+      data: {
+        user_id: userId,
+        action: 'delete_sananton_observe',
+        year: year.trim()
+      },
+      dataType: 'json',
+      success: function(response) {
+        alert(response.message);
+        if (response.success) {
+          location.reload(); // Refresh to show updated data
+        }
+      },
+      error: function() {
+        alert('Error al comunicarse con el servidor.');
+      }
+    });
+  });
+
+  // Add Viernes Dolores Year + Info
+  $('.viernes-year').click(function() {
+    const userId = $(this).data('user-id');
+    const year = prompt("Introduce el año para Viernes Dolores:");
+    if (!year) return alert('Año es obligatorio.');
+
+    const role = prompt("Introduce el rol para ese año:");
+    if (!role) return alert('Rol es obligatorio.');
+
+    const section = prompt("Introduce la sección:");
+    if (!section) return alert('Sección es obligatoria.');
+
+    const tunic = prompt("Introduce la túnica:");
+    if (!tunic) return alert('Túnica es obligatoria.');
+
+    const cape = prompt("Introduce la capa:");
+    if (!cape) return alert('Capa es obligatoria.');
+
+    const esclavina = prompt("Introduce la esclavina:");
+    if (!esclavina) return alert('Esclavina es obligatoria.');
+
+    $.post('update_data.php', {
+      action: 'add_viernes_year',
+      user_id: userId,
+      year: year,
+      role: role,
+      section: section,
+      tunic: tunic,
+      cape: cape,
+      esclavina: esclavina
+    }, function(response) {
+      alert(response.message);
+      if(response.success) location.reload();
+    }, 'json');
+  });
+});
+
+    $('.viernes-delete').click(function() {
+    const userId = $(this).data('user-id');
+    const year = prompt('Introduce el año que deseas eliminar:');
+
+    if (year === null || year.trim() === '') {
+      alert('Operación cancelada o año inválido.');
+      return;
+    }
+
+    $.ajax({
+      url: 'update_data.php',
+      method: 'POST',
+      data: {
+        user_id: userId,
+        action: 'delete_viernes',
+        year: year.trim()
+      },
+      dataType: 'json',
+      success: function(response) {
+        alert(response.message);
+        if (response.success) {
+          location.reload(); // Refresh to show updated data
+        }
+      },
+      error: function() {
+        alert('Error al comunicarse con el servidor.');
+      }
+    });
+  });
+
+</script>
 
 </body>
 </html>
