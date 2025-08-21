@@ -69,7 +69,7 @@ try {
   </div>
   <div class="image-text-right">
     <div class="text-content-right">
-      <p>TEXTO DESCRIPTIVO, PONER LO QUE QUIERAS</p>
+      
     </div>
   </div>
 

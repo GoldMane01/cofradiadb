@@ -4,15 +4,102 @@ require 'config.php';
 
 header('Content-Type: application/json');
 
+error_reporting(E_ALL & ~E_NOTICE);
+ini_set('display_errors', 0);
+
 $user_id = $_POST['user_id'] ?? null;
 $action = $_POST['action'] ?? null;
 
-if (!$user_id || !$action) {
+if (!$action) {
     echo json_encode(['success' => false, 'message' => 'Faltan datos requeridos.']);
     exit;
 }
 
 try {
+
+    if ($action === 'get_user') {
+        $user_id = $_POST['user_id'] ?? 0;
+        $stmt = $pdo->prepare("SELECT * FROM user WHERE id = ?");
+        $stmt->execute([$user_id]);
+        $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if ($user) {
+            echo json_encode(['success' => true, 'user' => $user]);
+        } else {
+            echo json_encode(['success' => false, 'message' => 'Usuario no encontrado.']);
+        }
+        exit;
+    }
+
+    if ($action === 'edit_user') {
+        $user_id = $_POST['user_id'] ?? 0;
+        $stmt = $pdo->prepare("UPDATE user SET name=?, surname=?, dni=?, birthdate=?, phone_number=?, email=?, address=?, postal_code=? WHERE id=?");
+        $stmt->execute([
+            $_POST['name'], $_POST['surname'], $_POST['dni'],
+            $_POST['bdate'], $_POST['phone'], $_POST['email'], $_POST['address'],
+            $_POST['pcode'], $user_id
+        ]);
+        echo json_encode(['success' => true, 'message' => 'Usuario actualizado correctamente.']);
+        exit;
+    }
+
+
+    if ($action === 'add_user') {
+        $name      = $_POST['name'] ?? '';
+        $surname   = $_POST['surname'] ?? '';
+        $dni       = $_POST['dni'] ?? '';
+        $inumber   = $_POST['inumber'] ?? '';
+        $bdate     = $_POST['bdate'] ?? '';
+        $phone     = $_POST['phone'] ?? '';
+        $email     = $_POST['email'] ?? '';
+        $address   = $_POST['address'] ?? '';
+        $pcode     = $_POST['pcode'] ?? '';
+        $hashed_pass = password_hash($phone, PASSWORD_DEFAULT);
+
+        if (!$name || !$surname || !$dni || !$inumber || !$bdate || !$phone || !$email || !$address || !$pcode) {
+            echo json_encode(['success' => false, 'message' => 'Todos los campos son obligatorios para crear un usuario.']);
+            exit;
+        }
+
+        $stmt = $pdo->prepare("
+            INSERT INTO user 
+                (name, surname, dni, inscription_n, birthdate, phone_number, email, address, postal_code, password) 
+            VALUES 
+                (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ");
+        $stmt->execute([$name, $surname, $dni, $inumber, $bdate, $phone, $email, $address, $pcode, $hashed_pass]);
+        $id = $pdo->lastInsertId();
+
+        $stmt = $pdo->prepare("
+            INSERT INTO inscriptions 
+                (user_id, dni, inscription_number, date_incorporated) 
+            VALUES 
+                (?, ?, ?, ?)
+        ");
+        $date = date('Y-m-d');
+        $stmt->execute([$id, $dni, $inumber, $date]);
+
+        echo json_encode(['success' => true, 'message' => 'Usuario añadido correctamente.']);
+        exit;
+    }
+
+    if ($action === 'delete_user') {
+        $id = $_POST['user_id'] ?? '';
+
+        if (!$id) {
+            echo json_encode(['success' => false, 'message' => 'ID de usuario no proporcionado.']);
+            exit;
+        }
+
+        $stmt = $pdo->prepare("DELETE FROM user WHERE id = ?");
+        $stmt->execute([$id]);
+
+        echo json_encode(['success' => true, 'message' => 'Usuario eliminado correctamente.']);
+        exit;
+    }
+
+
+
     if ($action === 'add_sananton_role') {
         $year = $_POST['year'] ?? '';
         $role = $_POST['role'] ?? '';

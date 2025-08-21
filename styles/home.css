@@ -184,3 +184,22 @@ header {
     gap: 10px;
     margin: 0;
 }
+
+.swal-custom-title {
+  font-size: 20px;
+}
+
+.swal-custom-input {
+  font-size: 20px;
+}
+
+.swal2-popup {
+  background: #a5a5a5 !important;
+  color: black;
+}
+
+.swal2-input,
+.swal2-textarea {
+  background: white !important;
+  color: black !important;
+}

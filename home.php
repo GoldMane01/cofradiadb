@@ -108,11 +108,11 @@ if (!empty($search_n)) {
     $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
     
     foreach ($users as &$user) {
-        $stmt = $pdo->prepare("SELECT inscription_number, date_incorporated FROM inscriptions WHERE user_id = ?");
-        $stmt->execute([$user['id']]);
+        $stmt = $pdo->prepare("SELECT inscription_number, date_incorporated FROM inscriptions WHERE dni = ?");
+        $stmt->execute([$user['dni']]);
         $user['inscription'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        $stmt = $pdo->prepare("SELECT inscription_number, date_incorporated FROM inscriptions WHERE user_id = ?");
-        $stmt->execute([$user['id']]);
+        $stmt = $pdo->prepare("SELECT inscription_number, date_incorporated FROM inscriptions WHERE dni = ?");
+        $stmt->execute([$user['dni']]);
         $user['inscription'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
         $stmt = $pdo->prepare("SELECT year, observation, role FROM san_anton WHERE user_id = ?");
         $stmt->execute([$user['id']]);
@@ -140,6 +140,7 @@ if (!empty($search_n)) {
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <title>Homepage</title>
     <link rel="stylesheet" href="styles/home.css">
 </head>
@@ -150,7 +151,7 @@ if (!empty($search_n)) {
     <img src="img/logo.png" alt="Logo" style="height: 50px;">
   </a>
   
-  <a href="add_user.php" class="login-btn">Añadir Usuario</a>
+  
   </div>
     
     <?php if ($pass_msg): ?>
@@ -158,6 +159,7 @@ if (!empty($search_n)) {
     <?php endif; ?>
   
     <?php if ($user_id == 0): ?>
+    <button style="margin-bottom:0px; margin-top:0px; margin-left: 5px" class="sm-btn add-user">Añadir Usuario</button>
     <form method="post" action="" class="login-form">
       <input type="password" id="opassword" name="opassword" class="form-control rounded-pill" style="width: 200px;" placeholder="Contraseña actual" required>
       <input type="password" id="npassword" name="npassword" class="form-control rounded-pill" style="width: 200px;" placeholder="Contraseña nueva" required>
@@ -230,6 +232,8 @@ if ($user_id == 0) {
                     <div class="label">DNI</div>
                     <div class="value"><?= $u['dni'] ?></div>
                 </div>
+                <button class="sm-btn edit-user" data-user-id="<?= $u['id'] ?>">Editar datos</button>
+                <button class="sm-btn delete-user" data-user-id="<?= $u['id'] ?>">Eliminar usuario</button>
             </div>
 
             <div class="column">
@@ -392,173 +396,344 @@ if ($user_id == 0) {
 
 
 <script>
-$(document).ready(function() {
-  // Add San Antón Year + Role
-  $('.sananton-role').click(function() {
-    const userId = $(this).data('user-id');
-    const year = prompt("Introduce el año para San Antón:");
-    if (!year) return alert('El año es obligatorio.');
+$(document).ready(function () {
+  initHandlers();
 
-    const role = prompt("Introduce el rol para ese año:");
-    if (!role) return alert('El rol es obligatorio.');
+  function initHandlers() {
+    // San Antón Role
+    $('.sananton-role').click(async function () {
+      const userId = $(this).data('user-id');
 
-    $.post('update_data.php', {
-      action: 'add_sananton_role',
-      user_id: userId,
-      year: year,
-      role: role
-    }, function(response) {
-      alert(response.message);
-      if(response.success) location.reload();
-    }, 'json');
-  });
+      const { value: year } = await Swal.fire({
+        title: 'Introduce el año para San Antón:',
+        input: 'text',
+        inputPlaceholder: 'Año...',
+        showCancelButton: true
+      });
+      if (!year) return Swal.fire('Error', 'El año es obligatorio.', 'error');
 
-  $('.sananton-delete').click(function() {
-    const userId = $(this).data('user-id');
-    const year = prompt('Introduce el año que deseas eliminar:');
+      const { value: role } = await Swal.fire({
+        title: 'Introduce el rol:',
+        input: 'text',
+        inputPlaceholder: 'Rol...',
+        showCancelButton: true
+      });
+      if (!role) return Swal.fire('Error', 'El rol es obligatorio.', 'error');
 
-    if (year === null || year.trim() === '') {
-      alert('Operación cancelada o año inválido.');
-      return;
-    }
+      $.post('update_data.php', {
+        action: 'add_sananton_role', user_id: userId, year, role
+      }, function (response) {
+        Swal.fire(response.success ? 'Éxito' : 'Error', response.message, response.success ? 'success' : 'error');
+        if (response.success) location.reload();
+      }, 'json');
+    });
 
-    $.ajax({
-      url: 'update_data.php',
-      method: 'POST',
-      data: {
+    // San Antón Delete
+    $('.sananton-delete').click(async function () {
+      const userId = $(this).data('user-id');
+
+      const { value: year } = await Swal.fire({
+        title: 'Introduce el año que deseas eliminar:',
+        input: 'text',
+        inputPlaceholder: 'Año...',
+        showCancelButton: true
+      });
+      if (!year) return Swal.fire('Cancelado', 'Operación cancelada o año inválido.', 'info');
+
+      $.post('update_data.php', {
         user_id: userId,
         action: 'delete_sananton_year',
         year: year.trim()
-      },
-      dataType: 'json',
-      success: function(response) {
-        alert(response.message);
-        if (response.success) {
-          location.reload(); // Refresh to show updated data
-        }
-      },
-      error: function() {
-        alert('Error al comunicarse con el servidor.');
+      }, function (response) {
+        Swal.fire(response.success ? 'Éxito' : 'Error', response.message, response.success ? 'success' : 'error');
+        if (response.success) location.reload();
+      }, 'json');
+    });
+
+    // San Antón Observation
+    $('.sananton-observe').click(async function () {
+      const userId = $(this).data('user-id');
+
+      const { value: year } = await Swal.fire({
+        title: 'Introduce el año para la observación:',
+        input: 'text',
+        inputPlaceholder: 'Año...',
+        showCancelButton: true
+      });
+      if (!year) return Swal.fire('Error', 'El año es obligatorio.', 'error');
+
+      const { value: observation } = await Swal.fire({
+        title: 'Introduce la observación:',
+        input: 'textarea',
+        inputPlaceholder: 'Observación...',
+        showCancelButton: true
+      });
+      if (!observation) return Swal.fire('Error', 'Observación es obligatoria.', 'error');
+
+      $.post('update_data.php', {
+        action: 'add_sananton_observation', user_id: userId, year, observation
+      }, function (response) {
+        Swal.fire(response.success ? 'Éxito' : 'Error', response.message, response.success ? 'success' : 'error');
+        if (response.success) location.reload();
+      }, 'json');
+    });
+
+    // San Antón Delete Observation
+    $('.sananton-delete-observe').click(async function () {
+      const userId = $(this).data('user-id');
+
+    const { value: year } = await Swal.fire({
+      title: 'Introduce el año de la observación que deseas eliminar:',
+      input: 'text',
+      inputPlaceholder: 'Año...',
+      showCancelButton: true,
+      customClass: {
+        title: 'swal-custom-title',
+        input: 'swal-custom-input'
       }
     });
-  });
 
-  // Add San Antón Observation
-  $('.sananton-observe').click(function() {
-    const userId = $(this).data('user-id');
-    const year = prompt("Introduce el año para la observación:");
-    if (!year) return alert('Año es obligatorio.');
+      if (!year) return Swal.fire('Cancelado', 'Operación cancelada o año inválido.', 'info');
 
-    const observation = prompt("Introduce la observación:");
-    if (!observation) return alert('Observación es obligatoria.');
-
-    $.post('update_data.php', {
-      action: 'add_sananton_observation',
-      user_id: userId,
-      year: year,
-      observation: observation
-    }, function(response) {
-      alert(response.message);
-      if(response.success) location.reload();
-    }, 'json');
-  });
-
-    $('.sananton-delete-observe').click(function() {
-    const userId = $(this).data('user-id');
-    const year = prompt('Introduce el año que deseas eliminar:');
-
-    if (year === null || year.trim() === '') {
-      alert('Operación cancelada o año inválido.');
-      return;
-    }
-
-    $.ajax({
-      url: 'update_data.php',
-      method: 'POST',
-      data: {
+      $.post('update_data.php', {
         user_id: userId,
         action: 'delete_sananton_observe',
         year: year.trim()
-      },
-      dataType: 'json',
-      success: function(response) {
-        alert(response.message);
-        if (response.success) {
-          location.reload(); // Refresh to show updated data
-        }
-      },
-      error: function() {
-        alert('Error al comunicarse con el servidor.');
-      }
+      }, function (response) {
+        Swal.fire(response.success ? 'Éxito' : 'Error', response.message, response.success ? 'success' : 'error');
+        if (response.success) location.reload();
+      }, 'json');
     });
-  });
 
-  // Add Viernes Dolores Year + Info
-  $('.viernes-year').click(function() {
-    const userId = $(this).data('user-id');
-    const year = prompt("Introduce el año para Viernes Dolores:");
-    if (!year) return alert('Año es obligatorio.');
+    //Add User
+    $('.add-user').click(async function () {
+      const { value: values } = await Swal.fire({
+        title: 'Añadir Usuario',
+        html:
+          '<label style="margin-top: 5px; display:block; color:black; font-weight:bold; font-size:18px">Nombre</label>' +
+          '<input style="margin-top: 0px;" id="swal-name" class="swal2-input" placeholder="Nombre">' +
+          '<label style="margin-top: 5px; display:block; color:black; font-weight:bold; font-size:18px">Apellidos</label>' +
+          '<input style="margin-top: 0px;" id="swal-surname" class="swal2-input" placeholder="Apellidos">' +
+          '<label style="margin-top: 5px; display:block; color:black; font-weight:bold; font-size:18px">DNI</label>' +
+          '<input style="margin-top: 0px;" id="swal-dni" class="swal2-input" placeholder="DNI">' +
+          '<label style="margin-top: 5px; display:block; color:black; font-weight:bold; font-size:18px">Nº Inscripción</label>' +
+          '<input style="margin-top: 0px;" id="swal-inumber" class="swal2-input" placeholder="Nº Inscripción">' +
+          '<label style="margin-top: 5px; display:block; color:black; font-weight:bold; font-size:18px">Nacimiento</label>' +
+          '<input style="margin-top: 0px;" type="date" id="swal-bdate" class="swal2-input">' +
+          '<label style="margin-top: 5px; display:block; color:black; font-weight:bold; font-size:18px">Teléfono</label>' +
+          '<input style="margin-top: 0px;" id="swal-phone" class="swal2-input" placeholder="Teléfono">' +
+          '<label style="margin-top: 5px; display:block; color:black; font-weight:bold; font-size:18px">Email</label>' +
+          '<input style="margin-top: 0px;" type="email" id="swal-email" class="swal2-input" placeholder="Email">' +
+          '<label style="margin-top: 5px; display:block; color:black; font-weight:bold; font-size:18px">Dirección</label>' +
+          '<input style="margin-top: 0px;" id="swal-address" class="swal2-input" placeholder="Dirección">' +
+          '<label style="margin-top: 5px; display:block; color:black; font-weight:bold; font-size:18px">Código Postal</label>' +
+          '<input style="margin-top: 0px;" id="swal-pcode" class="swal2-input" placeholder="Código Postal">',
 
-    const role = prompt("Introduce el rol para ese año:");
-    if (!role) return alert('Rol es obligatorio.');
+        focusConfirm: false,
+        showCancelButton: true,
+        confirmButtonText: 'Guardar',
+        cancelButtonText: 'Cancelar',
+        preConfirm: () => {
+          return {
+            name: document.getElementById('swal-name').value,
+            surname: document.getElementById('swal-surname').value,
+            dni: document.getElementById('swal-dni').value,
+            inumber: document.getElementById('swal-inumber').value,
+            bdate: document.getElementById('swal-bdate').value,
+            phone: document.getElementById('swal-phone').value,
+            email: document.getElementById('swal-email').value,
+            address: document.getElementById('swal-address').value,
+            pcode: document.getElementById('swal-pcode').value
+          };
+        }
+      });
 
-    const section = prompt("Introduce la sección:");
-    if (!section) return alert('Sección es obligatoria.');
+      if (!values) return;
+      if (Object.values(values).some(v => !v)) {
+        Swal.fire('Error', 'Todos los campos son obligatorios.', 'error');
+        return;
+      }
 
-    const tunic = prompt("Introduce la túnica:");
-    if (!tunic) return alert('Túnica es obligatoria.');
+      $.post('update_data.php', {
+        action: 'add_user',
+        ...values
+      }, function (response) {
+        Swal.fire(response.success ? 'Éxito' : 'Error', response.message, response.success ? 'success' : 'error');
+        if (response.success) location.reload();
+      }, 'json');
+    });
 
-    const cape = prompt("Introduce la capa:");
-    if (!cape) return alert('Capa es obligatoria.');
+    $('.delete-user').click(async function () {
+      const userId = $(this).data('user-id');
 
-    const esclavina = prompt("Introduce la esclavina:");
-    if (!esclavina) return alert('Esclavina es obligatoria.');
+      const result = await Swal.fire({
+        title: '¿Eliminar usuario?',
+        text: 'Esta acción no se puede deshacer.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Eliminar',
+        cancelButtonText: 'Cancelar'
+      });
 
-    $.post('update_data.php', {
-      action: 'add_viernes_year',
-      user_id: userId,
-      year: year,
-      role: role,
-      section: section,
-      tunic: tunic,
-      cape: cape,
-      esclavina: esclavina
-    }, function(response) {
-      alert(response.message);
-      if(response.success) location.reload();
-    }, 'json');
-  });
-});
+      if (!result.isConfirmed) return;
 
-    $('.viernes-delete').click(function() {
-    const userId = $(this).data('user-id');
-    const year = prompt('Introduce el año que deseas eliminar:');
+      $.post('update_data.php', {
+        action: 'delete_user',
+        user_id: userId
+      }, function (response) {
+        Swal.fire(
+          response.success ? 'Éxito' : 'Error',
+          response.message,
+          response.success ? 'success' : 'error'
+        );
+        if (response.success) location.reload();
+      }, 'json');
+    });
 
-    if (year === null || year.trim() === '') {
-      alert('Operación cancelada o año inválido.');
-      return;
-    }
 
-    $.ajax({
-      url: 'update_data.php',
-      method: 'POST',
-      data: {
+    $('.edit-user').click(async function () {
+      const userId = $(this).data('user-id');
+
+      const response = await $.post('update_data.php', {
+        action: 'get_user',
+        user_id: userId
+      }, null, 'json');
+
+      if (!response.success) {
+        Swal.fire('Error', 'No se pudo obtener la información del usuario.', 'error');
+        return;
+      }
+
+      const user = response.user;
+
+      const { value: values } = await Swal.fire({
+        title: 'Editar Usuario',
+        html:
+          '<label style="margin-top: 5px; display:block; color:black; font-weight:bold; font-size:18px">Nombre</label>' +
+          `<input style="margin-top: 0px;" id="swal-name" class="swal2-input" value="${user.name}" placeholder="Nombre">` +
+          '<label style="margin-top: 5px; display:block; color:black; font-weight:bold; font-size:18px">Apellidos</label>' +
+          `<input style="margin-top: 0px;" id="swal-surname" class="swal2-input" value="${user.surname}" placeholder="Apellidos">` +
+          '<label style="margin-top: 5px; display:block; color:black; font-weight:bold; font-size:18px">DNI</label>' +
+          `<input style="margin-top: 0px;" id="swal-dni" class="swal2-input" value="${user.dni}" placeholder="DNI">` +
+          '<label style="margin-top: 5px; display:block; color:black; font-weight:bold; font-size:18px">Nacimiento</label>' +
+          `<input style="margin-top: 0px;" type="date" id="swal-bdate" class="swal2-input" value="${user.birthdate}">` +
+          '<label style="margin-top: 5px; display:block; color:black; font-weight:bold; font-size:18px">Teléfono</label>' +
+          `<input style="margin-top: 0px;" id="swal-phone" class="swal2-input" value="${user.phone_number}" placeholder="Teléfono">` +
+          '<label style="margin-top: 5px; display:block; color:black; font-weight:bold; font-size:18px">Email</label>' +
+          `<input style="margin-top: 0px;" type="email" id="swal-email" class="swal2-input" value="${user.email}" placeholder="Email">` +
+          '<label style="margin-top: 5px; display:block; color:black; font-weight:bold; font-size:18px">Dirección</label>' +
+          `<input style="margin-top: 0px;" id="swal-address" class="swal2-input" value="${user.address}" placeholder="Dirección">` +
+          '<label style="margin-top: 5px; display:block; color:black; font-weight:bold; font-size:18px">Código Postal</label>' +
+          `<input style="margin-top: 0px;" id="swal-pcode" class="swal2-input" value="${user.postal_code}" placeholder="Código Postal">`,
+
+        focusConfirm: false,
+        showCancelButton: true,
+        confirmButtonText: 'Guardar',
+        cancelButtonText: 'Cancelar',
+        preConfirm: () => {
+          return {
+            user_id: userId,
+            name: document.getElementById('swal-name').value,
+            surname: document.getElementById('swal-surname').value,
+            dni: document.getElementById('swal-dni').value,
+            bdate: document.getElementById('swal-bdate').value,
+            phone: document.getElementById('swal-phone').value,
+            email: document.getElementById('swal-email').value,
+            address: document.getElementById('swal-address').value,
+            pcode: document.getElementById('swal-pcode').value
+          };
+        }
+      });
+
+      if (!values) return;
+      if (Object.values(values).some(v => !v)) {
+        Swal.fire('Error', 'Todos los campos son obligatorios.', 'error');
+        return;
+      }
+
+      $.post('update_data.php', {
+        action: 'edit_user',
+        ...values
+      }, function (res) {
+        Swal.fire(res.success ? 'Éxito' : 'Error', res.message, res.success ? 'success' : 'error');
+        if (res.success) location.reload();
+      }, 'json');
+    });
+
+
+    // Viernes Dolores Add
+    $('.viernes-year').click(async function () {
+      const userId = $(this).data('user-id');
+
+      const { value: values } = await Swal.fire({
+        title: 'Añadir Viernes Dolores',
+        html:
+          '<label style="margin-top: 5px; display:block; color:black; font-weight:bold; font-size:18px">Año</label>' +
+          '<input style="margin-top: 0px;" id="swal-year" class="swal2-input" placeholder="Año">' +
+          '<label style="margin-top: 5px; display:block; color:black; font-weight:bold; font-size:18px">Rol</label>' +
+          '<input style="margin-top: 0px;" id="swal-role" class="swal2-input" placeholder="Rol">' +
+          '<label style="margin-top: 5px; display:block; color:black; font-weight:bold; font-size:18px">Sección</label>' +
+          '<input style="margin-top: 0px;" id="swal-section" class="swal2-input" placeholder="Sección">' +
+          '<label style="margin-top: 5px; display:block; color:black; font-weight:bold; font-size:18px">Túnica</label>' +
+          '<input style="margin-top: 0px;" id="swal-tunic" class="swal2-input" placeholder="Túnica">' +
+          '<label style="margin-top: 5px; display:block; color:black; font-weight:bold; font-size:18px">Capa</label>' +
+          '<input style="margin-top: 0px;" id="swal-cape" class="swal2-input" placeholder="Capa">' +
+          '<label style="margin-top: 5px; display:block; color:black; font-weight:bold; font-size:18px">Esclavina</label>' +
+          '<input style="margin-top: 0px;" id="swal-esclavina" class="swal2-input" placeholder="Esclavina">',
+
+        focusConfirm: false,
+        showCancelButton: true,
+        preConfirm: () => {
+          return {
+            year: document.getElementById('swal-year').value,
+            role: document.getElementById('swal-role').value,
+            section: document.getElementById('swal-section').value,
+            tunic: document.getElementById('swal-tunic').value,
+            cape: document.getElementById('swal-cape').value,
+            esclavina: document.getElementById('swal-esclavina').value
+          };
+        }
+      });
+
+      if (!values) return;
+      if (Object.values(values).some(v => !v)) {
+        Swal.fire('Error', 'Todos los campos son obligatorios.', 'error');
+        return;
+      }
+
+      $.post('update_data.php', {
+        action: 'add_viernes_year',
+        user_id: userId,
+        ...values
+      }, function (response) {
+        Swal.fire(response.success ? 'Éxito' : 'Error', response.message, response.success ? 'success' : 'error');
+        if (response.success) location.reload();
+      }, 'json');
+    });
+
+    // Viernes Dolores Delete
+    $('.viernes-delete').click(async function () {
+      const userId = $(this).data('user-id');
+
+      const { value: year } = await Swal.fire({
+        title: 'Introduce el año que deseas eliminar:',
+        input: 'text',
+        inputPlaceholder: 'Año...',
+        showCancelButton: true
+      });
+      if (!year) return Swal.fire('Cancelado', 'Operación cancelada o año inválido.', 'info');
+
+      $.post('update_data.php', {
         user_id: userId,
         action: 'delete_viernes',
         year: year.trim()
-      },
-      dataType: 'json',
-      success: function(response) {
-        alert(response.message);
-        if (response.success) {
-          location.reload(); // Refresh to show updated data
-        }
-      },
-      error: function() {
-        alert('Error al comunicarse con el servidor.');
-      }
+      }, function (response) {
+        Swal.fire(response.success ? 'Éxito' : 'Error', response.message, response.success ? 'success' : 'error');
+        if (response.success) location.reload();
+      }, 'json');
     });
-  });
+  }
+});
 
 </script>
 
