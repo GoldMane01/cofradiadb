@@ -160,7 +160,7 @@ if (!empty($search_n)) {
   
     <?php if ($user_id == 0): ?>
     <button style="margin-bottom:0px; margin-top:0px; margin-left: 5px" class="sm-btn add-user">Añadir Usuario</button>
-    <form method="post" action="" class="login-form">
+    <form method="post" action="" class="login-form-pass">
       <input type="password" id="opassword" name="opassword" class="form-control rounded-pill" style="width: 200px;" placeholder="Contraseña actual" required>
       <input type="password" id="npassword" name="npassword" class="form-control rounded-pill" style="width: 200px;" placeholder="Contraseña nueva" required>
       <input type="submit" value="Cambiar Contraseña" class="login-btn">

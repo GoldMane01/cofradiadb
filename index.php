@@ -67,11 +67,6 @@ try {
       <p>y San Antonio Abad</p>
     </div>
   </div>
-  <div class="image-text-right">
-    <div class="text-content-right">
-      
-    </div>
-  </div>
 
     <div class="carousel-wrapper">
     <div id="myCarousel" class="carousel slide carrusel" data-ride="carousel">

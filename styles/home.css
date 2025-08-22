@@ -185,6 +185,13 @@ header {
     margin: 0;
 }
 
+.login-form-pass {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0;
+}
+
 .swal-custom-title {
   font-size: 20px;
 }
@@ -202,4 +209,96 @@ header {
 .swal2-textarea {
   background: white !important;
   color: black !important;
+}
+
+
+
+@media (max-width: 1200px) {
+    header {
+        background-color: #963b4e;
+        padding: 5px;
+        text-align: left;
+        flex-direction: column;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+	.login-form-pass {
+		display: contents;
+		align-items: center;
+		gap: 10px;
+		margin: 0;
+	}
+
+	.two-columns {
+		display: contents;
+		flex-wrap: nowrap;
+		max-width: 100%;
+	}
+
+	.value-two {
+		background: #252525;
+		color: #ffffff;
+		padding: 8px;
+		margin-top: 5px;
+		min-height: 36px;
+		flex: 0;
+		border-right: 0px solid white;
+		border-bottom: 2px solid white;
+		border-radius: 0%;
+	}
+
+	.value-two-right {
+		background: #252525;
+		color: #ffffff;
+		padding: 8px;
+		min-height: 36px;
+		min-width: 0;
+		flex: 1 1 auto;
+		word-wrap: break-word;
+		white-space: normal;
+		border-radius: 0%;
+		margin-top: 0px;
+	}
+
+	.year {
+		background: #252525;
+		color: #ffffff;
+		padding: 8px;
+		border-radius: 0px;
+		margin-top: 5px;
+		min-height: 36px;
+		border-bottom: 2px solid white;
+		border-bottom-right-radius: unset;
+		border-bottom-left-radius: unset;
+	}
+
+	.value-two-viernes {
+		background: #252525;
+		color: #ffffff;
+		padding: 8px;
+		min-height: 36px;
+		flex: 1;
+		border-right: 0px solid white;
+	}
+
+	.value-two-nobordertop {
+		background: #252525;
+		color: #ffffff;
+		padding: 8px;
+		border-radius: 0px;
+		min-height: 36px;
+		flex: 1;
+		border-right: 0px solid white;
+	}
+
+	.value-two-right-nobordertop {
+		background: #252525;
+		color: #ffffff;
+		padding: 8px;
+		border-radius: 0px;
+		min-height: 36px;
+		flex: 1;
+	}
 }
