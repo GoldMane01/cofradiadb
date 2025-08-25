@@ -26,12 +26,18 @@ if ($user_id == 0) {
     unset($user);
 
 } else {
-    $stmt = $pdo->prepare("SELECT name, surname, dni, inscription_n, birthdate, phone_number, email, address, postal_code, signed FROM user WHERE id = ?");
+    $stmt = $pdo->prepare("SELECT id, name, surname, dni, inscription_n, birthdate, phone_number, email, address, postal_code, signed FROM user WHERE id = ?");
     $stmt->execute([$user_id]);
     $user = $stmt->fetch(PDO::FETCH_ASSOC);
     $stmt = $pdo->prepare("SELECT inscription_number, date_incorporated FROM inscriptions WHERE user_id = ?");
     $stmt->execute([$user_id]);
     $user['inscription'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $stmt = $pdo->prepare("SELECT year, observation, role FROM san_anton WHERE user_id = ?");
+    $stmt->execute([$user['id']]);
+    $user['anton'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $stmt = $pdo->prepare("SELECT year, section, tunic, cape, role, esclavina FROM viernes_dolores WHERE user_id = ?");
+    $stmt->execute([$user['id']]);
+    $user['viernes'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
 /*$stmt = $pdo->prepare("SELECT year, observation, role FROM san_anton WHERE user_id = ?");
@@ -174,7 +180,7 @@ if (!empty($search_n)) {
     </form>
   <?php endif; ?>
   <?php if ($user_id != 0): ?>
-    <form method="post" action="" class="login-form">
+    <form method="post" action="" class="login-form-pass">
       <input type="password" id="opassword" name="opassword" class="form-control rounded-pill" style="width: 200px;" placeholder="Contraseña actual" required>
       <input type="password" id="npassword" name="npassword" class="form-control rounded-pill" style="width: 200px;" placeholder="Contraseña nueva" required>
       <input type="submit" value="Cambiar Contraseña" class="login-btn">
@@ -332,66 +338,115 @@ if ($user_id == 0) {
             <?php foreach ($user['inscription'] as $inscription): ?>
                  <?= $inscription['inscription_number'] ?> (<?= $inscription['date_incorporated'] ?>);
             <?php endforeach; ?></div>
-    <div class="three-columns">
-        <div class="column">
-        <div class="item">
-            <div class="label">Nombre</div>
-            <div class="value"><?= $user['name'] ?></div>
-        </div>
-        <div class="item">
-            <div class="label">Apellidos</div>
-            <div class="value"><?= $user['surname'] ?></div>
-        </div>
-        <div class="item">
-            <div class="label">Correo</div>
-            <div class="value"><?= $user['email'] ?></div>
-        </div>
-        <div class="item">
-            <div class="label">Dirección</div>
-            <div class="value"><?= $user['address'] ?></div>
-        </div>
-        <div class="item">
-            <div class="label">Código Postal</div>
-            <div class="value"><?= $user['postal_code'] ?></div>
-        </div>
-        <div class="item">
-            <div class="label">Fecha de Nacimiento</div>
-            <div class="value"><?= $user['birthdate'] ?></div>
-        </div>
-        <div class="item">
-            <div class="label">Teléfono</div>
-            <div class="value"><?= $user['phone_number'] ?></div>
-        </div>
-        <div class="item">
-            <div class="label">DNI</div>
-            <div class="value"><?= $user['dni'] ?></div>
-        </div>
-        </div>
+        <div class="three-columns">
+            <div class="column">
+                <div class="item">
+                    <div class="label">Nombre</div>
+                    <div class="value"><?= $user['name'] ?></div>
+                </div>
+                <div class="item">
+                    <div class="label">Apellidos</div>
+                    <div class="value"><?= $user['surname'] ?></div>
+                </div>
+                <div class="item">
+                    <div class="label">Correo</div>
+                    <div class="value"><?= $user['email'] ?></div>
+                </div>
+                <div class="item">
+                    <div class="label">Dirección</div>
+                    <div class="value"><?= $user['address'] ?></div>
+                </div>
+                <div class="item">
+                    <div class="label">Código Postal</div>
+                    <div class="value"><?= $user['postal_code'] ?></div>
+                </div>
+                <div class="item">
+                    <div class="label">Fecha de Nacimiento</div>
+                    <div class="value"><?= $user['birthdate'] ?></div>
+                </div>
+                <div class="item">
+                    <div class="label">Teléfono</div>
+                    <div class="value"><?= $user['phone_number'] ?></div>
+                </div>
+                <div class="item">
+                    <div class="label">DNI</div>
+                    <div class="value"><?= $user['dni'] ?></div>
+                </div>
+                <button class="sm-btn edit-user-reduced" data-user-id="<?= $user['id'] ?>">Editar datos</button>
+            </div>
 
-        <div class="column">
-        <div class="item">
-            <div class="label">Correo</div>
-            <div class="value"><?= $user['email'] ?></div>
-        </div>
-        <div class="item">
-            <div class="label">Correo</div>
-            <div class="value">carlos@example.com</div>
-        </div>
-        </div>
+            <div class="column">
+                <div class="item">
+                    <div class="label">San Antón (Roles)</div>
+                    <?php 
+                    $count = 0;
+                    foreach ($user['anton'] as $anton): 
+                        $count++;?>
+                        <div class="two-columns">
+                            <div class="value-two">
+                                    <?= $anton['year'] ?>
+                                </div>
+                                <div class="value-two-right">
+                                    <?= $anton['role'] ?>
+                                </div>
+                            </div>
+                    <?php endforeach; if ($count == 0) { ?>
+                        <div class="value">Ningún año registrado</div>
+                    <?php } ?>
+                </div>
+                <div class="item">
+                    <div class="label">San Antón (Observaciones)</div>
+                    <?php 
+                        $count = 0;
+                        foreach ($user['anton'] as $anton): 
+                        if (!empty($anton['observation'])) {
+                            $count++; ?>
+                        <div class="two-columns">
+                            <div class="value-two">
+                                    <?= $anton['year'] ?>
+                                </div>
+                                <div class="value-two-right">
+                                    <?= $anton['observation'] ?>
+                                </div>
+                            </div>
+                    <?php } endforeach; if ($count == 0) { ?>
+                            <div class="value">Sin observaciones</div>
+                    <?php   } ?>
+                </div>
+            </div>
 
-        <div class="column">
-        <div class="item">
-            <div class="label">Rol</div>
-            <div class="value">Administrador</div>
-        </div>
-        <div class="item">
-            <div class="label">Rol</div>
-            <div class="value">Usuario</div>
-        </div>
-        </div>
-    </div>
-    </div>
-</div>
+            <div class="column">
+                <div class="item">
+                    <div class="label">Viernes Dolores (Roles)</div>
+                    <?php 
+                    $count = 0;
+                    foreach ($user['viernes'] as $viernes): 
+                        $count++;?>
+                            <div class="year">
+                                <?= $viernes['year'] ?>
+                            </div>
+                            <div class="two-columns">
+                                <div class="value-two-nobordertop" style="flex: 1">
+                                    <?= $viernes['role'] ?>
+                                </div>
+                                <div class="value-two-viernes" style="flex: 1">
+                                    <?= $viernes['section'] ?>
+                                </div>
+                                <div class="value-two-viernes" style="flex: 1">
+                                    Túnica: <?= $viernes['tunic'] ?>
+                                </div>
+                                <div class="value-two-viernes" style="flex: 1">
+                                    Capa: <?= $viernes['cape'] ?>
+                                </div>
+                                <div class="value-two-right-nobordertop" style="flex: 1">
+                                    <?= $viernes['esclavina'] ?>
+                                </div>
+                            </div>
+                    <?php endforeach; if ($count == 0) { ?>
+                        <div class="value">Ningún año registrado</div>
+                    <?php } ?>
+                </div>
+            </div>
 <?php } ?>
 
 
@@ -653,6 +708,63 @@ $(document).ready(function () {
 
       $.post('update_data.php', {
         action: 'edit_user',
+        ...values
+      }, function (res) {
+        Swal.fire(res.success ? 'Éxito' : 'Error', res.message, res.success ? 'success' : 'error');
+        if (res.success) location.reload();
+      }, 'json');
+    });
+
+    $('.edit-user-reduced').click(async function () {
+      const userId = $(this).data('user-id');
+
+      const response = await $.post('update_data.php', {
+        action: 'get_user',
+        user_id: userId
+      }, null, 'json');
+
+      if (!response.success) {
+        Swal.fire('Error', 'No se pudo obtener la información del usuario.', 'error');
+        return;
+      }
+
+      const user = response.user;
+
+      const { value: values } = await Swal.fire({
+        title: 'Editar Usuario',
+        html:
+          '<label style="margin-top: 5px; display:block; color:black; font-weight:bold; font-size:18px">Teléfono</label>' +
+          `<input style="margin-top: 0px;" id="swal-phone" class="swal2-input" value="${user.phone_number}" placeholder="Teléfono">` +
+          '<label style="margin-top: 5px; display:block; color:black; font-weight:bold; font-size:18px">Email</label>' +
+          `<input style="margin-top: 0px;" type="email" id="swal-email" class="swal2-input" value="${user.email}" placeholder="Email">` +
+          '<label style="margin-top: 5px; display:block; color:black; font-weight:bold; font-size:18px">Dirección</label>' +
+          `<input style="margin-top: 0px;" id="swal-address" class="swal2-input" value="${user.address}" placeholder="Dirección">` +
+          '<label style="margin-top: 5px; display:block; color:black; font-weight:bold; font-size:18px">Código Postal</label>' +
+          `<input style="margin-top: 0px;" id="swal-pcode" class="swal2-input" value="${user.postal_code}" placeholder="Código Postal">`,
+
+        focusConfirm: false,
+        showCancelButton: true,
+        confirmButtonText: 'Guardar',
+        cancelButtonText: 'Cancelar',
+        preConfirm: () => {
+          return {
+            user_id: userId,
+            phone: document.getElementById('swal-phone').value,
+            email: document.getElementById('swal-email').value,
+            address: document.getElementById('swal-address').value,
+            pcode: document.getElementById('swal-pcode').value
+          };
+        }
+      });
+
+      if (!values) return;
+      if (Object.values(values).some(v => !v)) {
+        Swal.fire('Error', 'Todos los campos son obligatorios.', 'error');
+        return;
+      }
+
+      $.post('update_data.php', {
+        action: 'edit_user_reduced',
         ...values
       }, function (res) {
         Swal.fire(res.success ? 'Éxito' : 'Error', res.message, res.success ? 'success' : 'error');

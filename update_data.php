@@ -43,6 +43,18 @@ try {
         exit;
     }
 
+    if ($action === 'edit_user_reduced') {
+        $user_id = $_POST['user_id'] ?? 0;
+        $stmt = $pdo->prepare("UPDATE user SET phone_number=?, email=?, address=?, postal_code=? WHERE id=?");
+        $stmt->execute([
+            $_POST['phone'], $_POST['email'], $_POST['address'],
+            $_POST['pcode'], $user_id
+        ]);
+        echo json_encode(['success' => true, 'message' => 'Usuario actualizado correctamente.']);
+        exit;
+    }
+
+
 
     if ($action === 'add_user') {
         $name      = $_POST['name'] ?? '';
